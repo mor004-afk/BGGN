@@ -1,0 +1,101 @@
+---
+title: "Class 13: RNASeq mini project"
+author: "Montserrat (PID:A16536527)"
+format: html
+---
+
+## Background 
+
+Today we will run through a complete RNASeq analysis 
+
+The data for for hands-on session comes from GEO entry: GSE37704, which is associated with the following publication:
+
+Trapnell C, Hendrickson DG, Sauvageau M, Goff L et al. "Differential analysis of gene regulation at transcript resolution with RNA-seq". Nat Biotechnol 2013 Jan;31(1):46-53. PMID: 23222703
+The authors report on differential analysis of lung fibroblasts in response to loss of the developmental transcription factor HOXA1. Their results and others indicate that HOXA1 is required for lung fibroblast and HeLa cell cycle progression. In particular their analysis show that "loss of HOXA1 results in significant expression level changes in thousands of individual transcripts, along with isoform switching events in key regulators of the cell cycle". For our session we have used their Sailfish gene-level estimated counts and hence are restricted to protein-coding genes only.
+
+## Data Import 
+
+```{r}
+counts <- read.csv("GSE37704_featurecounts.csv", row.names = 1)
+metadata<- read.csv("GSE37704_metadata.csv",row.names = 1)
+```
+
+check correspondence of `metadata` and `counts` (i.e. thata the columns in `counts` match the rows in the `metadata`)
+
+```{r}
+metadata
+head(counts)
+```
+
+
+Fix to remove that first "length" column of `counts`
+
+```{r}
+counts <- counts[,-1]
+tot.counts<- rowSums(counts)
+head(tot.counts)
+```
+
+Lets remove all zero genes 
+
+```{r}
+zero.inds <- tot.counts==0
+head(zero.inds)
+```
+
+```{r}
+
+#! flips true to falses, this will filter out all zero genes 
+counts <- counts[!zero.inds,]
+```
+
+
+```{r}
+test_cols <- !all(colnames(counts)[-1]==metadata$id)
+```
+
+```{r}
+if (test_cols){
+  message("Wow... there is a problem with the metadata counts setup ")
+}
+```
+
+
+## Setup for DESeq 
+
+```{r}
+library(DESeq2)
+```
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData= counts,
+                              colData= metadata,
+                              design=~condition)
+```
+
+#Run DESeq 
+
+```{r}
+dds<- DESeq(dds)
+```
+
+
+## Get results 
+
+```{r}
+res<-results(dds)
+head(res)
+```
+
+
+## Visualize Results 
+
+## Add annotation
+
+## Pathway analysis 
+
+
+##Save Results 
+
+
+
