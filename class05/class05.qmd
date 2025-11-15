@@ -1,0 +1,254 @@
+---
+title: "Class05: Data Viz with GGPLOT"
+author: "Montserrat (PID:A16536527)"
+format: pdf
+---
+
+Today we playing with plotting and graphics in E 
+
+There are lots of ways to make cool figures in T 
+There is "base" R graphics (`plot()`, `hist()`, `boxplot()` etc.)
+
+there is also add-on packages like **ggplot**
+
+```{r}
+head(cars)
+```
+ lets plot with this "base" R: 
+ 
+ option command i = insert code
+ 
+```{r}
+plot(cars)
+```
+
+```{r}
+head(mtcars)
+```
+lets plot `mpg` vs `disp`
+pch number can be changed to adjust figure for points 
+
+```{r}
+plot(mtcars$mpg,mtcars$disp,pch=12)
+```
+```{r}
+hist(mtcars$mpg)
+```
+
+##GGPLOT
+
+the main function in the ggplot2 package is **ggplot()*. First i need to install the ggplot2 package. i can install any package with the function `install.packages()` ( do this in the console)
+
+>**N.B.** i never want to run `install.packages()` in my quarto source document
+
+you need to load the package before attempting to use 
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ggplot(cars)+
+  aes(x=speed,y=dist)+
+  geom_point()
+```
+every ggplot needas at least 3 things: data, 
+= **data** (given with `ggplot(cars)`)
+-the **aesthetic** mapping (given with `aes()`)
+-the **geom** (given by `geom_point()`)
+
+>for simple canned graphs "base" R is near always faster
+
+```{r}
+ggplot(cars)+
+  aes(speed)+
+  geom_histogram()
+```
+
+
+```{r}
+ggplot(cars)+
+  aes(x=speed,y=dist)+
+  geom_point()+
+  geom_line()
+```
+
+### add more layers
+
+lets add a line and title, subtitle and caption as well as custom axis labels 
+
+```{r}
+ggplot(cars)+
+  aes(x=speed,y=dist)+
+  geom_point() + 
+  geom_smooth()
+```
+
+straight line, no shading 
+
+```{r}
+ggplot(cars)+
+  aes(x=speed,y=dist)+
+  geom_point()+
+  geom_smooth(method="lm",se=FALSE)+
+  labs(title="Silly Plot", x="Speed(MPH)", y="Distance(ft)", caption="when is tea time anyway???") +
+  theme_bw()
+        
+```
+## Plot some expression data 
+
+Read data file from online URL 
+
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+```
+
+>Q1. how many genes are in this wee dataset?
+
+there are `r nrow(genes)` in this dataset 
+
+>Q2. how may "up" regulated genes are there?
+
+```{r}
+sum(genes$State =="up")
+```
+
+there are `r sum(genes$State =="up")` UP genes
+
+```{r}
+table(genes$State)
+```
+
+```{r}
+ggplot(genes) + 
+    aes(x=Condition1, y=Condition2, col=State) +
+    geom_point()
+  
+  
+```
+
+
+```{r}
+ggplot(genes) + 
+    aes(x=Condition1, y=Condition2, col=Condition2) +
+    geom_point()
+```
+
+```{r}
+p <- ggplot(genes) + 
+    aes(x=Condition1, y=Condition2, col=State) +
+    geom_point()+
+  scale_color_manual(values=c("blue","gray","red"))
+```
+
+```{r}
+p
+```
+
+```{r}
+p+labs(title="look at me")
+```
+
+Silly example of adding labels 
+```{r}
+ggplot(genes) + 
+    aes(x=Condition1, y=Condition2, col=State,label=Gene) +
+    geom_point()+
+  scale_color_manual(values=c("blue","gray","red"))+ 
+  geom_text()
+```
+
+```{r}
+library(ggrepel)
+
+ggplot(genes) + 
+    aes(x=Condition1, y=Condition2, col=State,label=Gene) +
+    geom_point()+
+  scale_color_manual(values=c("blue","gray","red"))+ 
+  geom_text_repel(max.overlaps = 60)+ 
+  theme_bw()
+```
+
+## Going Further 
+
+playing with some different layers and the gapminder dataset
+
+```{r}
+# File location online
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/master/inst/extdata/gapminder.tsv"
+
+gapminder <- read.delim(url)
+```
+
+```{r}
+tail(gapminder)
+```
+
+A first plot 
+
+```{r}
+ggplot(gapminder)+
+  aes(y=lifeExp,x=gdpPercap, col=continent)+
+  geom_point()+
+  facet_wrap(~continent)
+```
+alpha leads do transperency 
+```{r}
+ggplot(gapminder)+
+  aes(y=lifeExp,x=gdpPercap, col=continent)+
+  geom_point(alpha=0.2)+
+  facet_wrap(~continent)+
+  theme_bw()
+```
+
+
+```{r}
+ggplot(gapminder)+
+  aes(y=lifeExp,x=gdpPercap, col=continent, size=pop)+
+  geom_point(alpha=0.2)+
+  facet_wrap(~continent)+
+  theme_bw()
+```
+
+###Extensions: Animation 
+
+```{r}
+library(gapminder)
+library(gganimate)
+```
+
+
+```{r}
+# Setup nice regular ggplot of the gapminder data
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  # Facet by continent
+  facet_wrap(~continent) +
+  # Here comes the gganimate specific bits
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year) +
+  shadow_wake(wake_length = 0.1, alpha = FALSE)
+```
+
+###Combining Plots 
+
+```{r}
+library(dplyr)
+library(patchwork)
+```
+
+```{r}
+p1 <- ggplot(mtcars) + geom_point(aes(mpg, disp))
+p2 <- ggplot(mtcars) + geom_boxplot(aes(gear, disp, group = gear))
+p3 <- ggplot(mtcars) + geom_smooth(aes(disp, qsec))
+p4 <- ggplot(mtcars) + geom_bar(aes(carb))
+
+(p1 | p2 | p3) /
+      p4
+```
+
