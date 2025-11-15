@@ -1,0 +1,43 @@
+---
+title: "HW Class 6"
+author: "Montserrat(PID:A16536527)"
+format: pdf
+---
+
+
+```{r}
+# Can you improve this analysis code?
+library(bio3d)
+s1 <- read.pdb("4AKE") # kinase with drug
+s2 <- read.pdb("1AKE") # kinase no drug
+s3 <- read.pdb("1E4Y") # kinase with drug
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+s3.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s1.b <- s1.chainA$atom$b
+s2.b <- s2.chainA$atom$b
+s3.b <- s3.chainA$atom$b
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+```
+
+>Q6. How would you generalize the original code above to work with any set of input protein structures?
+
+```{r}
+plot_kinase_bfactor <- function(pdb_id) {
+  pdb <- read.pdb(pdb_id)
+  chainA <- trim.pdb(pdb, chain="A", elety="CA")
+  b <- chainA$atom$b
+  plotb3(b, sse=chainA, typ="l", ylab="Bfactor")
+}
+
+plot_kinase_bfactor("1AKE")
+```
+
+The input to this function are the pdb ID such as "4AKE" or "1AKE".
+
+This function takes a PDB ID, reads the corresponding protein structure, extracts Calpha atoms from chain A, retrieves their B-factors, and plots those B-factors with secondary structure annotation
+
+The output of the function is a plot showing the B-factor values for Calpha atoms in chain A of the specified PDB structure, with secondary structure annotation
+
