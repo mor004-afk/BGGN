@@ -1,0 +1,46 @@
+---
+title: 'Class 15: Cloud computing'
+author: 'Montserrat (PID: A16536527)'
+date: "2025-11-21"
+output: pdf
+---
+
+```{r}
+ library(readr)
+ df <- read_tsv("mm-second.x.zebrafish.tsv")
+ colnames(df)<- c("qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore")
+```
+
+Make a histogram of the $bitscore values. You may want to set the optional breaks to be a larger number (e.g. breaks=30).
+```{r}
+hist(df$bitscore, breaks=30)
+```
+Is there a straightforward relationship between percent identity ($pident) and bitscore ($bitscore) for the alignments we generated?
+
+```{r}
+plot(df$pident,df$bitscore)
+```
+
+```{r}
+## Asuming your blast results are stored in an object called 'b'
+plot(df$pident  * (df$qend - df$qstart), df$bitscore)
+```
+
+
+
+```{r}
+library(ggplot2)
+ggplot(df, aes(pident, bitscore)) + geom_point(alpha=0.1) 
+```
+
+
+```{r}
+ggplot(df, aes((df$pident * (df$qend - df$qstart)), bitscore)) + 
+  geom_point(alpha=0.1) + geom_smooth()
+
+```
+
+```{r}
+rmarkdown::render("Class 15.Rmd", output_format = "pdf_document")
+```
+
