@@ -1,0 +1,40 @@
+---
+title: "Week 8: Introduction to Genome Informatics Lab"
+author: "Montserrat (PID:A16536527)"
+format: html
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+
+```
+
+##Section 1. Proportion of G/G in a population 
+
+downloaded a csv file from Ensemble <https://useast.ensembl.org/Homo_sapiens/Variation/Sample?db=core;r=17:39895223-39895475;v=rs8067378;vdb=variation;vf=959672880#373531_tablePanel>
+
+here we read csv file 
+
+```{r}
+mxl <- read.csv("373531-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+
+head(mxl)
+```
+
+```{r}
+table(mxl$Genotype..forward.strand.)
+```
+
+```{r}
+library(ShortRead)
+fastq1 <- readFastq("HG00109_1.fastq")
+fastq2 <-readFastq("HG00109_2.fastq")
+```
+
+
+```{r}
+head(fastq1)
+```
+

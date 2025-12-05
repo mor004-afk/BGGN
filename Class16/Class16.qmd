@@ -1,0 +1,95 @@
+---
+title: "Class 16: Obtaining and processing SRA datasets on AWS"
+author: "Montserrat (A16536527)"
+format: pdf
+toc: TRUE
+---
+
+
+##Downstream Analysis 
+
+
+R function called `tximport()` in the tximport package, which enables straightforward import of Kallisto results
+
+
+```{r}
+# setup the folder and filenames to read
+library(tximport)
+folders <- dir(pattern="SRR21568*")
+samples <- sub("_quant", "", folders)
+files <- file.path( folders, "abundance.tsv" )
+names(files) <- samples
+
+txi.kallisto <- tximport(files, type = "kallisto", txOut = TRUE)
+```
+
+```{r}
+head(txi.kallisto$counts)
+```
+
+
+```{r}
+colSums(txi.kallisto$counts)
+```
+
+```{r}
+sum(rowSums(txi.kallisto$counts)>0)
+```
+
+Before subsequent analysis, we might want to filter out those annotated transcripts with no reads:
+
+```{r}
+to.keep <- rowSums(txi.kallisto$counts) > 0
+kset.nonzero <- txi.kallisto$counts[to.keep,]
+```
+
+And those with no change over the samples:
+
+```{r}
+keep2 <- apply(kset.nonzero,1,sd)>0
+x <- kset.nonzero[keep2,]
+```
+
+##PCA 
+
+
+```{r}
+pca <- prcomp(t(x), scale=TRUE)
+```
+
+```{r}
+summary(pca)
+```
+
+Now we can use the first two principal components as a co-ordinate system for visualizing the summarized transcriptomic profiles of each sample:
+
+```{r}
+plot(pca$x[,1], pca$x[,2],
+     col=c("blue","blue","red","red"),
+     xlab="PC1", ylab="PC2", pch=16)
+```
+
+PC1 vs PC2
+
+```{r}
+library(ggplot2)
+condition <- c("control", "control", "treated", "treated")
+ggplot(pca$x) + aes(PC1, PC2, col=condition, label=samples)+
+  geom_point()+
+  geom_text(vjust=-0.5, size=2)
+```
+PC1 vs PC3 
+
+```{r}
+ggplot(pca$x) + aes(PC1, PC3, col=condition, label=samples)+
+  geom_point()+
+  geom_text(vjust=-0.5, size=2)
+```
+PC2 vs PC3 
+
+```{r}
+ggplot(pca$x) + aes(PC2, PC3, col=condition, label=samples)+
+  geom_point()+
+  geom_text(vjust=-0.5, size=2)
+```
+

@@ -1,0 +1,37 @@
+---
+title: "week 8 lab"
+author: "Montserrat (PID:A16536527)"
+format: pdf
+---
+
+```{r}
+
+data <- read.table("https://bioboot.github.io/bggn213_W19/class-material/rs8067378_ENSG00000172057.6.txt")
+head(data)
+```
+
+
+```{r}
+
+tapply(data$exp, data$geno, median)
+
+```
+
+>Q14: Generate a boxplot with a box per genotype, what could you infer from the relative expression value between A/A and G/G displayed in this plot? Does the SNP effect the expression of ORMDL3?
+
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+
+cols <- c("pink", "purple", "green")
+
+ggplot(data)+
+  aes(geno,exp, fill=geno)+
+  geom_boxplot(outlier.shape = NA)+
+  labs( x = "Genotype",y = "Expression Level")
+```
+
