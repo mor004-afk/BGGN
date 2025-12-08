@@ -8,3 +8,5 @@ Class work for bioinformatics class [BGGN213 at UCSD](https://github.com/mor004-
 - Class 06: [Writing R Functions](Class06/class06.md)
 - Class 07: [Machine learning for Bioinformatics 1](Class07/Class07_MachineLearning1.md)
 - Class 08: [Unsupervised learning mini-project]()
+- Class 10: [Halloween Mini Project](Class10/HalloweenMiniProject.md)
+- Class 11: [Structural Bioinformatics](Class11/class11.md)
